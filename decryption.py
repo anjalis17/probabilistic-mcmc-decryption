@@ -5,7 +5,6 @@ import math
 import matplotlib.pyplot as plt
 import random
 import string
-import math
 
 LEN_ALPHABET = 26
 NUM_ITERATIONS = 10000
@@ -199,7 +198,7 @@ def predict_encryption_key(encrypted_text):
     best_likelihood = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
     likelihoods.append(best_likelihood)
 
-    for i in range(8000):
+    for i in range(5500):
         # print(best_likelihood)
         # print(prior_key)
 
@@ -241,7 +240,7 @@ def predict_encryption_key(encrypted_text):
                 print('not changed')
         
         likelihoods.append(best_likelihood)
-        
+
     print(best_likelihood)
     print(f"Estimated key: {prior_key}")
     return prior_key, likelihoods
