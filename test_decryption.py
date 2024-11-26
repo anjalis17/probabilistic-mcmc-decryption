@@ -62,7 +62,7 @@ def test_predict_longer():
     #     Aristotle's views profoundly shaped medieval scholarship. The influence of his physical science extended from late antiquity and the Early Middle Ages into the Renaissance, and was not replaced systematically until the Enlightenment and theories such as classical mechanics were developed. He influenced Judeo-Islamic philosophies during the Middle Ages, as well as Christian theology, especially the Neoplatonism of the Early Church and the scholastic tradition of the Catholic Church.
     #     Aristotle was revered among medieval Muslim scholars as "The First Teacher", and among medieval Christians like Thomas Aquinas as simply "The Philosopher", while the poet Dante called him "the master of those who know". His works contain the earliest known formal study of logic, and were studied by medieval scholars such as Peter Abelard and Jean Buridan. Aristotle's influence on logic continued well into the 19th century. In addition, his ethics, although always influential, gained renewed interest with the modern advent of virtue ethics."""
     
-    passage_path = "/Users/anjali/Library/CloudStorage/OneDrive-Stanford/Sophomore Year/Fall 2024/CS 109/Challenge Project/long_passages/Harry_Potter.txt"
+    passage_path = "/Users/anjali/Library/CloudStorage/OneDrive-Stanford/Sophomore Year/Fall 2024/CS 109/Challenge Project/medium_passages/CS109_Course_Reader.txt"
     plaintext = read_text_file(passage_path)
     encrypted_text = encrypt_text(plaintext, encryption_map)
     likelihood_right_mapping = compute_log_likelihood(encrypted_text, encryption_map, word_prob_dict)
