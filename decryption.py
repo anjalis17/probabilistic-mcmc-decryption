@@ -99,23 +99,30 @@ def get_word_frequencies():
 
 #     return log_likelihood
 
-def compute_likelihood_letterString(decrypted_str, swap_space, encryption_key):
-    flipped_encryption_map = {}
-    for encrypt_ch in encryption_key:
-        orig_ch = encryption_key[encrypt_ch]
-        flipped_encryption_map[orig_ch] = encrypt_ch
+# def compute_likelihood_letterString(decrypted_str, swap_space, encryption_key):
+#     flipped_encryption_map = {}
+#     for encrypt_ch in encryption_key:
+#         orig_ch = encryption_key[encrypt_ch]
+#         flipped_encryption_map[orig_ch] = encrypt_ch
 
+#     log_likelihood = 0
+#     for letter in decrypted_str:
+#         if letter.isalpha():
+#             log_likelihood += math.log(get_letter_frequency(letter)) 
+
+#             # Update encrypted letter's entry in swap space
+#             encrypt_ch = flipped_encryption_map[letter]
+#             if encrypt_ch not in swap_space:
+#                 swap_space[encrypt_ch] = 0
+#             swap_space[encrypt_ch] += 1
+
+#     return log_likelihood
+
+def compute_likelihood_letterString(decrypted_str):
     log_likelihood = 0
     for letter in decrypted_str:
         if letter.isalpha():
             log_likelihood += math.log(get_letter_frequency(letter)) 
-
-            # Update encrypted letter's entry in swap space
-            encrypt_ch = flipped_encryption_map[letter]
-            if encrypt_ch not in swap_space:
-                swap_space[encrypt_ch] = 0
-            swap_space[encrypt_ch] += 1
-
     return log_likelihood
  
 # Computes likelihood of text given encryption key (dict mapping)
@@ -125,9 +132,6 @@ def compute_likelihood_letterString(decrypted_str, swap_space, encryption_key):
 # Returns the log likelihood
 # P (encrypted text | encryption key)
 def compute_log_likelihood(encrypted_text, encryption_key, word_prob_dict):
-    # Init swap space
-    swap_space = {}
-
     # 1) Decrypt encrypted text
     decrypted_text = decrypt_text(encrypted_text, encryption_key)
 
@@ -143,20 +147,20 @@ def compute_log_likelihood(encrypted_text, encryption_key, word_prob_dict):
             log_likelihood += math.log(word_prob_dict[cleaned_token])
         else:
             smoothed_likelihood = math.log(1e-7)  # Small probability for unknown words
-            log_likelihood += max(smoothed_likelihood, compute_likelihood_letterString(token, swap_space, encryption_key))
-    return log_likelihood, swap_space
+            log_likelihood += max(smoothed_likelihood, compute_likelihood_letterString(token))
+    return log_likelihood
 
 def bernoulli_coin_flip(p):
     return 1 if random.random() < p else 0
 
-def get_two_swap_letters(swap_space):
-    letters, freqs = zip(*swap_space.items())
-    # weights=freqs
-    letter1 = random.choices(letters, weights=freqs, k=1)[0]
-    letter2 = letter1
-    while letter2 == letter1:
-        letter2 = random.choices(letters, weights=freqs, k=1)[0]
-    return letter1, letter2
+# def get_two_swap_letters(swap_space):
+#     letters, freqs = zip(*swap_space.items())
+#     # weights=freqs
+#     letter1 = random.choices(letters, weights=freqs, k=1)[0]
+#     letter2 = letter1
+#     while letter2 == letter1:
+#         letter2 = random.choices(letters, weights=freqs, k=1)[0]
+#     return letter1, letter2
 
 def generate_initial_key(encrypted_text):
     letters_in_freq_order = ""
@@ -191,8 +195,8 @@ def predict_encryption_key(encrypted_text):
     # Generate random encryption key as initial prior -- equal likelihood of being any of the 26! possible keys
     # prior_key = generate_random_key()
     prior_key = generate_initial_key(encrypted_text)
-    swap_space = {}
-    best_likelihood, swap_space = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
+    # swap_space = {}
+    best_likelihood = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
     likelihoods.append(best_likelihood)
 
     for i in range(8000):
@@ -207,10 +211,10 @@ def predict_encryption_key(encrypted_text):
         new_key[key1] = prior_key[key2]
         new_key[key2] = prior_key[key1]
 
-        new_likelihood, new_swap_space = compute_log_likelihood(encrypted_text, new_key, word_prob_dict)
+        new_likelihood = compute_log_likelihood(encrypted_text, new_key, word_prob_dict)
         print(f"{key1} {key2}")
         print(new_likelihood)
-        print(new_swap_space)
+        # print(new_swap_space)
         
         # If we get a higher likelihood / posterior (ratio > 1), we update our encryption key belief -- new best!
         # Else, we compute ratio between new posterior and previous (best seen) posterior
@@ -224,21 +228,20 @@ def predict_encryption_key(encrypted_text):
         if new_likelihood > best_likelihood:
             prior_key = new_key
             best_likelihood = new_likelihood
-            swap_space = new_swap_space
+            # swap_space = new_swap_space
             print('HERE - changed')
         else:
             accept_prob = math.exp(log_likelihood_ratio)  # Exponential scaling of the likelihood ratio
             if bernoulli_coin_flip(accept_prob) == 1:
                 prior_key = new_key
                 best_likelihood = new_likelihood
-                swap_space = new_swap_space
+                # swap_space = new_swap_space
                 print(f'random flip changed, {accept_prob}')
             else:
                 print('not changed')
         
         likelihoods.append(best_likelihood)
-
-    print(f"Swap space: {swap_space}")
+        
     print(best_likelihood)
     print(f"Estimated key: {prior_key}")
     return prior_key, likelihoods

@@ -167,7 +167,7 @@ Mrs. Dursley sipped her tea through pursed lips. Mr. Dursley wondered
 whether he dared tell her he’d heard the name “Potter.” He decided he didn’t"""
 
     encrypted_text = encrypt_text(plaintext, encryption_map)
-    likelihood_right_mapping, swap_space = compute_log_likelihood(encrypted_text, encryption_map, word_prob_dict)
+    likelihood_right_mapping = compute_log_likelihood(encrypted_text, encryption_map, word_prob_dict)
     print(f"CORRECT MAPPING LIKELIHOOD: {likelihood_right_mapping}")
 
     # print(encrypted_text)
