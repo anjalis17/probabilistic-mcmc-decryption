@@ -198,7 +198,7 @@ def predict_encryption_key(encrypted_text):
     best_likelihood = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
     likelihoods.append(best_likelihood)
 
-    for i in range(5500):
+    for i in range(8000):
         # print(best_likelihood)
         # print(prior_key)
 
