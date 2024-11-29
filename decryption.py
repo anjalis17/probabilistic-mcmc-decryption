@@ -194,6 +194,8 @@ def predict_encryption_key(encrypted_text):
     # Generate random encryption key as initial prior -- equal likelihood of being any of the 26! possible keys
     # prior_key = generate_random_key()
     prior_key = generate_initial_key(encrypted_text)
+    print(len(LETTER_PROBABILITIES))
+    print(len(prior_key))
     # swap_space = {}
     best_likelihood = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
     likelihoods.append(best_likelihood)
@@ -211,9 +213,8 @@ def predict_encryption_key(encrypted_text):
         new_key[key2] = prior_key[key1]
 
         new_likelihood = compute_log_likelihood(encrypted_text, new_key, word_prob_dict)
-        print(f"{key1} {key2}")
+        # print(f"{key1} {key2}")
         print(new_likelihood)
-        # print(new_swap_space)
         
         # If we get a higher likelihood / posterior (ratio > 1), we update our encryption key belief -- new best!
         # Else, we compute ratio between new posterior and previous (best seen) posterior
@@ -228,16 +229,17 @@ def predict_encryption_key(encrypted_text):
             prior_key = new_key
             best_likelihood = new_likelihood
             # swap_space = new_swap_space
-            print('HERE - changed')
+            # print('HERE - changed')
         else:
             accept_prob = math.exp(log_likelihood_ratio)  # Exponential scaling of the likelihood ratio
             if bernoulli_coin_flip(accept_prob) == 1:
                 prior_key = new_key
                 best_likelihood = new_likelihood
                 # swap_space = new_swap_space
-                print(f'random flip changed, {accept_prob}')
-            else:
-                print('not changed')
+                # print(f'random flip changed, {accept_prob}')
+            # else:
+            #     continue
+                # print('not changed')
         
         likelihoods.append(best_likelihood)
 
