@@ -382,10 +382,12 @@ def main():
     # visualize_convergences()
     # generate_trial_data()
     data_path = f"{BASE_PATH}/decryption_trials_processed.csv"
+    data = pd.read_csv(data_path)
+    print(data[data['Group'] == 'short']['Mean Accuracy Score'].mean())
     # plot_mean_accuracy_scores(data_path)
     # plot_median_accuracy_scores(data_path)
     # plot_execution_time_scatterplot(data_path)
-    plot_length_vs_accuracy_scatterplot(data_path)
+    # plot_length_vs_accuracy_scatterplot(data_path)
 
 if __name__ == "__main__":
     main()
