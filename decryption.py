@@ -7,7 +7,7 @@ import random
 import string
 
 LEN_ALPHABET = 26
-NUM_ITERATIONS = 10000
+NUM_ITERATIONS = 8000
 WORD_TOTAL = 1000000000000
 # Frequencies from https://www3.nd.edu/~busiforc/handouts/cryptography/Letter%20Frequencies.html
 LETTER_PROBABILITIES =  {
@@ -191,59 +191,44 @@ def predict_encryption_key(encrypted_text):
     word_prob_dict = get_word_frequencies()
     likelihoods = []
 
-    # Generate random encryption key as initial prior -- equal likelihood of being any of the 26! possible keys
-    # prior_key = generate_random_key()
+    # Generate inital prior belief
     prior_key = generate_initial_key(encrypted_text)
     print(len(LETTER_PROBABILITIES))
     print(len(prior_key))
-    # swap_space = {}
-    best_likelihood = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
-    likelihoods.append(best_likelihood)
+    current_likelihood = compute_log_likelihood(encrypted_text, prior_key, word_prob_dict)
+    likelihoods.append(current_likelihood)
 
-    for i in range(8000):
-        # print(best_likelihood)
-        # print(prior_key)
-
+    for i in range(NUM_ITERATIONS):
         # Consider swapping any two mapping values in encryption key guess
         keys = list(prior_key.keys())
         key1, key2 = random.sample(keys, 2)
         new_key = prior_key.copy()
-        # key1, key2 = get_two_swap_letters(swap_space)
         new_key[key1] = prior_key[key2]
         new_key[key2] = prior_key[key1]
 
+        # Compute likelihood of new key guess, P(key | encrypted text input)
         new_likelihood = compute_log_likelihood(encrypted_text, new_key, word_prob_dict)
-        # print(f"{key1} {key2}")
         print(new_likelihood)
-        
-        # If we get a higher likelihood / posterior (ratio > 1), we update our encryption key belief -- new best!
-        # Else, we compute ratio between new posterior and previous (best seen) posterior
-        # ratio = new_likelihood / best_likelihood
-        # If new posterior is worse...
-        # Flip a coin (Bernoulli) with probability success proportional to ratio -- purpose: to avoid getting stuck at local optima
 
-        # Compute the log-likelihood ratio
-        log_likelihood_ratio = new_likelihood - best_likelihood
-
-        if new_likelihood > best_likelihood:
+        # If we find a greater likelihood, we update our encryption key belief -- new best!
+        if new_likelihood > current_likelihood:
             prior_key = new_key
-            best_likelihood = new_likelihood
-            # swap_space = new_swap_space
-            # print('HERE - changed')
-        else:
-            accept_prob = math.exp(log_likelihood_ratio)  # Exponential scaling of the likelihood ratio
+            current_likelihood = new_likelihood
+        else: 
+            # Else, compute the log(new key likehood / current key likelihood)
+            log_likelihood_ratio = new_likelihood - current_likelihood
+            # Define acceptance probability -- e^{log likelihood ratio}
+            accept_prob = math.exp(log_likelihood_ratio) 
+
+            # Flip a coin (Bernoulli RV) with prob success = acceptance prob
+            # Purpose: to avoid getting stuck at local optima
             if bernoulli_coin_flip(accept_prob) == 1:
                 prior_key = new_key
-                best_likelihood = new_likelihood
-                # swap_space = new_swap_space
-                # print(f'random flip changed, {accept_prob}')
-            # else:
-            #     continue
-                # print('not changed')
+                current_likelihood = new_likelihood
         
-        likelihoods.append(best_likelihood)
+        likelihoods.append(current_likelihood)
 
-    print(best_likelihood)
+    print(current_likelihood)
     print(f"Estimated key: {prior_key}")
     return prior_key, likelihoods
 

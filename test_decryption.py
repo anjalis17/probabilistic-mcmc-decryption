@@ -39,25 +39,23 @@ def test_compute_likelihood():
     assert count == 0
 
 def test_predict():
-    encryption_map = generate_random_key()
     word_prob_dict = get_word_frequencies()
-    # plaintext = """Little is known about Aristotle's life. He was born in the city of Stagira in northern Greece during the Classical period. His father, Nicomachus, died when Aristotle was a child, and he was brought up by a guardian. At around eighteen years old, he joined Plato's Academy in Athens and remained there until the age of thirty seven (c. 347 BC). Shortly after Plato died, Aristotle left Athens and, at the request of Philip II of Macedon, tutored his son Alexander the Great beginning in 343 BC. He established a library in the Lyceum, which helped him to produce many of his hundreds of books on papyrus scrolls.
-    #     Though Aristotle wrote many treatises and dialogues for publication, only around a third of his original output has survived, none of it intended for publication. Aristotle provided a complex synthesis of the various philosophies existing prior to him. His teachings and methods of inquiry have had a significant impact across the world, and remain a subject of contemporary philosophical discussion.
-    #     Aristotle's views profoundly shaped medieval scholarship. The influence of his physical science extended from late antiquity and the Early Middle Ages into the Renaissance, and was not replaced systematically until the Enlightenment and theories such as classical mechanics were developed. He influenced Judeo-Islamic philosophies during the Middle Ages, as well as Christian theology, especially the Neoplatonism of the Early Church and the scholastic tradition of the Catholic Church.
-    #     Aristotle was revered among medieval Muslim scholars as "The First Teacher", and among medieval Christians like Thomas Aquinas as simply "The Philosopher", while the poet Dante called him "the master of those who know". His works contain the earliest known formal study of logic, and were studied by medieval scholars such as Peter Abelard and Jean Buridan. Aristotle's influence on logic continued well into the 19th century. In addition, his ethics, although always influential, gained renewed interest with the modern advent of virtue ethics."""
-    
     passage_path = "/Users/anjali/Library/CloudStorage/OneDrive-Stanford/Sophomore Year/Fall 2024/CS 109/Challenge Project/long_passages/New_York_Times_Politics.txt"
+
+    encryption_map = generate_random_key()
     plaintext = read_text_file(passage_path)
     encrypted_text = encrypt_text(plaintext, encryption_map)
-    likelihood_right_mapping = compute_log_likelihood(encrypted_text, encryption_map, word_prob_dict)
-    print(f"CORRECT MAPPING LIKELIHOOD: {likelihood_right_mapping}")
+    print(encrypted_text)
 
-    # print(encrypted_text)
+    likelihood_right_mapping = compute_log_likelihood(encrypted_text, encryption_map, word_prob_dict)
+    # print(f"Correct Mapping Likelihood: {likelihood_right_mapping}")
+
+    # Core Algorithm -- predicting correct encryption key ('mapping_guess') from encrypted passage
     mapping_guess, likelihoods = predict_encryption_key(encrypted_text)
     decrypted = decrypt_text(encrypted_text, mapping_guess)
     print(decrypted)
-    print(encryption_map)
-    print(likelihoods[:5])
+    print(f"Encryption Key Prediction: {mapping_guess}")
+    print(f"Decryption Accuracy: {compute_decryption_accuracy(plaintext, decrypted)}")
     visualize_convergence(likelihoods, likelihood_right_mapping)
 
 def visualize_convergence(likelihoods, expected_likelihood):
@@ -97,7 +95,7 @@ def compute_decryption_accuracy(plaintext, decrypted):
             else:
                 print(f"true: {true}, pred: {pred}")
     accuracy_score = correct / count
-    print(f"ACCURACY SCORE: {accuracy_score}")
+    # print(f"ACCURACY SCORE: {accuracy_score}")
     return accuracy_score
 
 
